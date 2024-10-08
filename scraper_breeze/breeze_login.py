@@ -4,7 +4,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import urllib
 from selenium import webdriver
-
+from datetime import datetime
+import time
 
 def get_session_key(force=False):
     
@@ -24,17 +25,18 @@ def get_session_key(force=False):
                 print("Key already generated for today", content_date)
                 return old_session_key
 
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--headless')  # Run in headless mode without GUI
+    firefox_options = webdriver.FirefoxOptions()
+    firefox_options.add_argument('--headless')  # Run in headless mode without GUI
 
     # Create the WebDriver with the specified options
     print("Generating new key.....")
-    driver = webdriver.Chrome(options = chrome_options)
+    driver = webdriver.Firefox(options = firefox_options)
     # Navigate to the login page of the website
+    print("https://api.icicidirect.com/apiuser/login?api_key="+urllib.parse.quote_plus(os.environ["API_KEY"]))
     driver.get("https://api.icicidirect.com/apiuser/login?api_key="+urllib.parse.quote_plus(os.environ["API_KEY"]))
-    time.sleep(5)
+    time.sleep(10)
     # Find the username and password input fields using their HTML attributes
-    driver.find_element(By.XPATH, '//*[@id="txtuid"]').send_keys(os.environ["USERNAME"])
+    driver.find_element(By.XPATH, '//*[@id="txtuid"]').send_keys(os.environ["USERID"])
     time.sleep(0.2)
     driver.find_element(By.XPATH, '//*[@id="txtPass"]').send_keys(os.environ["PASSWORD"])
     time.sleep(0.2)
@@ -44,19 +46,24 @@ def get_session_key(force=False):
     time.sleep(0.2)
 
     # Entering totp
+    time.sleep(10)
     otp = pyotp.TOTP(os.environ["TOTP_KEY"]).now()
+    print(otp)
+    
     for position, digit in zip(range(1,7), otp):
         driver.find_element(By.XPATH, f'//*[@id="pnlOTP"]/div[2]/div[2]/div[3]/div/div[{position}]/input').send_keys(digit)
         time.sleep(0.1)
 
     driver.find_element(By.XPATH, '//*[@id="Button1"]').click()
-    time.sleep(0.5)
+    time.sleep(2)
     # Getting session key
     newurl = driver.current_url
-    time.sleep(0.3)
+    time.sleep(2)
     session_key = newurl[newurl.index('=')+1:]
     with open("session_key.txt", 'w') as a:
             a.write(f'{session_key}, {datetime.today().strftime("%Y-%m-%d")}')
     driver.quit()
     print("Key Generated")
     return session_key
+
+

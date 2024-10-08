@@ -1,0 +1,16 @@
+version: '0.0.1'
+
+services:
+
+  scraper_breeze:
+    restart: always
+    platform: linux/amd64
+    env_file:
+      - ./scraper_breeze/.env
+    build:
+      context: ./scraper_breeze/
+    ports:
+      - 8000:8000
+    volumes:
+      - ./scraper_breeze/HistoricData/:/app/HistoricData/
+    command: uvicorn breeze-conn-fastapi:app --reload --host 0.0.0.0 --port 8000

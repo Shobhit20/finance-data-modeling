@@ -1,0 +1,5 @@
+breeze-connect==1.0.58
+pyotp==2.9.0
+selenium==4.25.0
+fastapi
+uvicorn[standard]
