@@ -1,2 +1,3 @@
 scraper_breeze/session_key.txt
 scraper_breeze/.env
+__pycache__/
